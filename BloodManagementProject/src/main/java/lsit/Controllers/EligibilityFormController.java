@@ -5,6 +5,7 @@ import lsit.Repositories.EligibilityFormRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,10 +43,11 @@ public class EligibilityFormController {
     }
 
     @GetMapping("/listall")
-    public ResponseEntity<List<EligibilityForm>> listAllEligibilityForms() {
+    public ResponseEntity<?> listAllEligibilityForms() {
         List<EligibilityForm> forms = eligibilityFormRepository.listAllEligibilityForms();
         if (forms.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Return 204 if no forms found
+            // Return 200 status with a custom message in the response body
+            return ResponseEntity.ok(Collections.singletonMap("message", "No eligibility forms currently stored."));
         }
         return ResponseEntity.ok(forms);
     }

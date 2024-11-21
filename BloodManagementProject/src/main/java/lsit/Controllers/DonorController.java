@@ -3,6 +3,7 @@ package lsit.Controllers;
 import lsit.Models.Donor;
 import lsit.Repositories.DonorRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,11 +32,7 @@ public class DonorController {
     }
 
     @GetMapping("/listall")
-    public ResponseEntity<?> listAllDonors(OAuth2AuthenticationToken authentication) {
-        var groups = (List<String>)authentication.getPrincipal().getAttribute("https://gitlab.org/claims/groups/owner");
-        if(!groups.contains("lsit-ken3239/roles/blooddonations/medical-staff")){
-            return ResponseEntity.ok(Collections.singletonMap("message", "This user does not have the rights to view page contents"));
-        };
+    public ResponseEntity<?> listAllDonors() {
         List<Donor> donors = donorRepository.listAllDonors();
         if (donors.isEmpty()) {
              // Return 200 status with a custom message in the response body
