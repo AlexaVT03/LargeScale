@@ -5,6 +5,7 @@ import lsit.Repositories.HealthCheckRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,10 +43,11 @@ public class HealthCheckController {
     }
 
     @GetMapping("/listall")
-    public ResponseEntity<List<HealthCheck>> listAllHealthChecks() {
+    public ResponseEntity<?> listAllHealthChecks() {
         List<HealthCheck> healthChecks = healthCheckRepository.listAllHealthChecks();
         if (healthChecks.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Return 204 if no health checks found
+            // Return 200 status with a custom message in the response body
+            return ResponseEntity.ok(Collections.singletonMap("message", "No health checks currently stored."));
         }
         return ResponseEntity.ok(healthChecks);
     }

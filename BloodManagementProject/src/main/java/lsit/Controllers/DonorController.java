@@ -3,8 +3,11 @@ package lsit.Controllers;
 import lsit.Models.Donor;
 import lsit.Repositories.DonorRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,10 +32,11 @@ public class DonorController {
     }
 
     @GetMapping("/listall")
-    public ResponseEntity<List<Donor>> listAllDonors() {
+    public ResponseEntity<?> listAllDonors() {
         List<Donor> donors = donorRepository.listAllDonors();
         if (donors.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Return 204 if no donors found
+             // Return 200 status with a custom message in the response body
+            return ResponseEntity.ok(Collections.singletonMap("message", "No donors currently stored."));
         }
         return ResponseEntity.ok(donors);
     }

@@ -5,6 +5,7 @@ import lsit.Repositories.BloodSampleRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,10 +39,11 @@ public class BloodSampleController {
     }
 
     @GetMapping("/listall")
-    public ResponseEntity<List<BloodSample>> listAllBloodSamples() {
+    public ResponseEntity<?> listAllBloodSamples() {
         List<BloodSample> samples = bloodSampleRepository.listAllBloodSamples();
         if (samples.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Return 204 if no samples found
+            // Return 200 status with a custom message in the response body
+            return ResponseEntity.ok(Collections.singletonMap("message", "No blood samples currently stored."));
         }
         return ResponseEntity.ok(samples);
     }
