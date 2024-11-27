@@ -24,18 +24,51 @@ public class Config{
                 )
             )
             .authorizeHttpRequests(authorize -> authorize
-                //authorizations currently non-sensical, just for testing purposes
-                .requestMatchers("/").permitAll() //lets anyone access home page
+                // General permissions
+                .requestMatchers("/").permitAll() // Home page accessible by everyone
 
-                /* Commented role restrictions as to not interfere with further development
-                .requestMatchers(HttpMethod.GET, "/donors/listall").hasAnyRole("Fail_test","DONOR") //hasAnyRole when multiple roles have access
-                .requestMatchers(HttpMethod.GET, "/eligibility-forms/listall").hasRole("MEDICAL-STAFF")
-                .requestMatchers(HttpMethod.GET, "/blood-samples/listall").hasRole("BLOOD-MANAGEMENT-UNIT")
-                .requestMatchers(HttpMethod.GET, "/health-checks/listall").hasRole("FAIL_TEST") //test; should be forbidden
-                */
-                //TODO: add role restrictions for every call/page
+                // Restrict access to donors/listall
+                .requestMatchers(HttpMethod.GET, "/donors/listall").hasRole("ADMIN") // None of the designated roles have access due to information protection
 
-                .anyRequest().authenticated() //all other pages you just need to be logged in; no role requirement
+                // Donor access
+                .requestMatchers(HttpMethod.GET, "/donors/{id}").hasRole("DONOR") // View donor details
+                .requestMatchers(HttpMethod.GET, "/donors/{id}/health-status").hasRole("DONOR") // Check health status
+                .requestMatchers(HttpMethod.GET, "/donors/{id}/eligibility-status").hasRole("DONOR") // Check eligibility status
+                .requestMatchers(HttpMethod.POST, "/eligibility-forms/create").hasRole("DONOR") // Submit eligibility form
+                .requestMatchers(HttpMethod.GET, "/eligibility-forms/{id}").hasRole("DONOR") // View specific eligibility form
+                .requestMatchers(HttpMethod.GET, "/eligibility-forms/by-donor/{donorId}").hasRole("DONOR") // View all eligibility forms by the donor
+
+                // Medical Staff access - Specific Donor Information
+                .requestMatchers(HttpMethod.GET, "/donors/{id}").hasRole("DONOR") // View donor details
+                .requestMatchers(HttpMethod.GET, "/donors/{id}/health-status").hasRole("MEDICAL-STAFF") // Check health status
+                .requestMatchers(HttpMethod.GET, "/donors/{id}/eligibility-status").hasRole("MEDICAL-STAFF") // Check eligibility status
+
+                // Medical Staff access - Eligibility Forms
+                .requestMatchers(HttpMethod.GET, "/eligibility-forms/listall").hasRole("MEDICAL-STAFF") // View all eligibility forms
+                .requestMatchers(HttpMethod.GET, "/eligibility-forms/{id}").hasRole("MEDICAL-STAFF") // View specific eligibility form
+                .requestMatchers(HttpMethod.GET, "/eligibility-forms/by-donor/{donorId}").hasRole("MEDICAL-STAFF") // View all eligibility forms by donor
+                .requestMatchers(HttpMethod.PUT, "/eligibility-forms/{id}").hasRole("MEDICAL-STAFF") // Update eligibility form
+                .requestMatchers(HttpMethod.DELETE, "/eligibility-forms/{id}").hasRole("MEDICAL-STAFF") // Delete eligibility form
+
+                // Medical Staff access - Health Checks
+                .requestMatchers(HttpMethod.POST, "/health-checks/create").hasRole("MEDICAL-STAFF") // Record new health checks
+                .requestMatchers(HttpMethod.GET, "/health-checks/listall").hasRole("MEDICAL-STAFF") // View all health checks
+                .requestMatchers(HttpMethod.GET, "/health-checks/{id}").hasRole("MEDICAL-STAFF") // View specific health check
+                .requestMatchers(HttpMethod.GET, "/health-checks/by-donor/{donorId}").hasRole("MEDICAL-STAFF") // View all health checks by donor
+                .requestMatchers(HttpMethod.PUT, "/health-checks/{id}").hasRole("MEDICAL-STAFF") // Update health check
+                .requestMatchers(HttpMethod.DELETE, "/health-checks/{id}").hasRole("MEDICAL-STAFF") // Delete health check
+
+                // Blood Management Unit access
+                .requestMatchers(HttpMethod.POST, "/blood-samples/create").hasRole("BLOOD-MANAGEMENT-UNIT") // Record new blood samples
+                .requestMatchers(HttpMethod.GET, "/blood-samples/listall").hasRole("BLOOD-MANAGEMENT-UNIT") // View all blood samples
+                .requestMatchers(HttpMethod.GET, "/blood-samples/{id}").hasRole("BLOOD-MANAGEMENT-UNIT") // Retrieve specific blood sample
+                .requestMatchers(HttpMethod.GET, "/blood-samples/by-donor/{donorId}").hasRole("BLOOD-MANAGEMENT-UNIT") // View all blood samples by donor
+                .requestMatchers(HttpMethod.PATCH, "/blood-samples/{id}/quality").hasRole("BLOOD-MANAGEMENT-UNIT") // Update quality status
+                .requestMatchers(HttpMethod.PATCH, "/blood-samples/{id}/progress").hasRole("BLOOD-MANAGEMENT-UNIT") // Update progress status
+                .requestMatchers(HttpMethod.DELETE, "/blood-samples/{id}").hasRole("BLOOD-MANAGEMENT-UNIT") // Delete blood sample
+
+                // Fallback for authenticated users
+                .anyRequest().authenticated() // All other pages require login
             );
 
         return http.build();
